@@ -1,60 +1,130 @@
+// ContentView.swift
 import SwiftUI
 
 struct ContentView: View {
     @State private var recognizedText: String = ""
+    @State private var cameraViewController: CameraViewController?
+    @State private var showCopiedToast = false
+    @State private var isCameraMinimized = false
 
     var body: some View {
-        VStack {
-            Text("Text Snippet Capture")
-                .font(.title2)
-                .bold()
-                .padding(.top)
+        ZStack {
+            VStack(spacing: 0) {
+                // Top App Name
+                Text("HardCopy")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(.label))
+                    .padding(.top, 15)
 
-            Spacer()
+                VStack {
 
-            Image("SampleText")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 300)
-                .border(Color.green)
+                    Spacer()
 
+                    if !isCameraMinimized {
+                        CameraView { cgImage in
+                            let recognizer = TextRecognizer()
+                            recognizer.recognizeText(from: cgImage) { result in
+                                DispatchQueue.main.async {
+                                    recognizedText = result
+                                    withAnimation {
+                                        isCameraMinimized = true
+                                    }
+                                }
+                            }
+                        }
+                        .frame(height: 300)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+                    }
 
+                    if isCameraMinimized {
+                        SelectableTextView(text: recognizedText)
+                            .frame(minHeight: 150, maxHeight: .infinity)
+                            .foregroundColor(Color(.label))
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(10)
+                            .shadow(radius: 2)
+                            .padding()
 
-            ScrollView {
-                Text(recognizedText.isEmpty ? "Scanned text will appear here..." : recognizedText)
-                    .padding()
-            }
-            .frame(height: 150)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(10)
-            .padding()
+                        Button(action: {
+                            UIPasteboard.general.string = recognizedText
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-            Button(action: {
-                // Simulate an image for now until we use a live camera frame
-                if let sampleImage = UIImage(named: "SampleText")?.cgImage {
-                    let recognizer = TextRecognizer()
-                    recognizer.recognizeText(from: sampleImage) { result in
-                        DispatchQueue.main.async {
-                            recognizedText = result
+                            withAnimation {
+                                showCopiedToast = true
+                            }
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showCopiedToast = false
+                                    recognizedText = ""
+                                    isCameraMinimized = false
+                                }
+                            }
+                        }) {
+                            Text("Copy to Clipboard")
+                                .font(.subheadline)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    Button(action: {
+                        NotificationCenter.default.post(name: .triggerScan, object: nil)
+                    }) {
+                        Text("Scan")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
+
+                    Spacer()
+                }
+                .padding()
+                .background(
+                    ZStack {
+                        Color(.systemBackground)
+
+                        VStack {
+                            Spacer()
+                            Text("Highlight your favorite lines 📚")
+                                .font(.footnote)
+                                .foregroundColor(Color(.secondaryLabel))
+                                .padding(.bottom, 50)
                         }
                     }
-                } else {
-                    recognizedText = "⚠️ No sample image found."
-                }
-            }) {
-                Text("Scan")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                )
             }
 
-
-            Spacer()
+            if showCopiedToast {
+                Text("Copied ✅")
+                    .font(.caption)
+                    .padding(10)
+                    .background(Color.black.opacity(0.8))
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.bottom, 30)
+            }
+        }.onReceive(NotificationCenter.default.publisher(for: .triggerScan)) { _ in
+            withAnimation {
+                isCameraMinimized = false
+                recognizedText = ""
+            }
         }
-        .padding()
-        .background(Color.white)
     }
+}
+
+extension Notification.Name {
+    static let triggerScan = Notification.Name("triggerScan")
 }
