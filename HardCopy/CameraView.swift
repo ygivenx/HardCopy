@@ -13,6 +13,8 @@ struct CameraView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
 }
 
+
+
 class CameraViewController: UIViewController {
     private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!

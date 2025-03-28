@@ -8,19 +8,39 @@ import SwiftUI
 
 struct SelectableTextView: UIViewRepresentable {
     let text: String
+    @Binding var selectedText: String
 
-    func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
+    func makeUIView(context: Context) -> InterceptingTextView {
+        let textView = InterceptingTextView()
         textView.isEditable = false
         textView.isSelectable = true
-        textView.isScrollEnabled = true
-        textView.backgroundColor = UIColor.systemBackground
+        textView.delegate = context.coordinator
+        textView.backgroundColor = .clear
+        textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.textColor = UIColor.label
-        textView.font = UIFont.systemFont(ofSize: 16)
-        return textView 
+        textView.text = text
+        return textView
     }
 
-    func updateUIView(_ uiView: UITextView, context: Context) {
+    func updateUIView(_ uiView: InterceptingTextView, context: Context) {
         uiView.text = text
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UITextViewDelegate {
+        var parent: SelectableTextView
+
+        init(_ parent: SelectableTextView) {
+            self.parent = parent
+        }
+
+        func textViewDidChangeSelection(_ textView: UITextView) {
+            if let range = textView.selectedTextRange {
+                parent.selectedText = textView.text(in: range) ?? ""
+            }
+        }
     }
 }
