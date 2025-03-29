@@ -32,6 +32,13 @@ struct ContentView: View {
     @State private var isCameraMinimized = false
     @State private var selectedText: String = ""
     @State private var showingSnippetViewer = false
+    @State private var snippetSource: String = ""
+    @State private var snippetTags: [String] = []
+    @State private var tagInput: String = ""
+    @State private var showSourceEditor = false
+
+    let predefinedTags = ["book-snippet", "idea", "quote", "definition", "reference", "question", "insight", "research"]
+
     @StateObject private var snippetsManager = SnippetsManager()
 
     var body: some View {
@@ -88,6 +95,102 @@ struct ContentView: View {
                         .cornerRadius(10)
                         .shadow(radius: 2)
                         .padding()
+                    
+                    // SHOW SOURCE
+                    if !snippetSource.isEmpty {
+                        HStack {
+                            HStack(spacing: 8) {
+                                Image(systemName: "book.fill")
+                                    .foregroundColor(.blue)
+
+                                Text(snippetSource)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            }
+
+                            Spacer()
+
+                            HStack(spacing: 16) {
+                                Button(action: {
+                                    showSourceEditor = true
+                                }) {
+                                    Image(systemName: "pencil")
+                                        .imageScale(.medium)
+                                        .foregroundColor(.gray)
+                                }
+
+                                Button(action: {
+                                    withAnimation {
+                                        snippetSource = ""
+                                        snippetTags = []
+                                    }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .imageScale(.medium)
+                                        .foregroundColor(.red)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                        )
+                        .padding(.horizontal)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    } else {
+                        Button(action: {
+                            showSourceEditor = true
+                        }) {
+                            Label("Add Source", systemImage: "plus")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        .sheet(isPresented: $showSourceEditor) {
+                            SourceEntryModal(source: $snippetSource, onSave: {
+                                if snippetTags.isEmpty {
+                                    snippetTags = ["book-snippet"]
+                                }
+                            })
+                        }
+                    }
+
+                    VStack(alignment: .leading) {
+                        Text("Tags:")
+                            .font(.caption)
+                            .padding(.horizontal)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(predefinedTags, id: \.self) { tag in
+                                    let isSelected = snippetTags.contains(tag)
+                                    Button(action: {
+                                        if isSelected {
+                                            snippetTags.removeAll { $0 == tag }
+                                        } else {
+                                            snippetTags.append(tag)
+                                        }
+                                    }) {
+                                        Text(tag)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(isSelected ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
+                                            .cornerRadius(10)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+
 
                     Button(action: {
                         let cleanedSelected = cleanRecognizedText(selectedText)
@@ -97,7 +200,7 @@ struct ContentView: View {
                         UIPasteboard.general.string = textToCopy
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-                        let newSnippet = Snippet(text: textToCopy)
+                        let newSnippet = Snippet(text: textToCopy, source: snippetSource, tags: snippetTags)
                         snippetsManager.addSnippet(newSnippet)
 
                         withAnimation {
@@ -169,7 +272,18 @@ struct ContentView: View {
             withAnimation {
                 isCameraMinimized = false
                 recognizedText = ""
+                selectedText = ""
+                
+                // Load last-used source if it's recent
+                if let recent = loadRecentSource() {
+                    snippetSource = recent
+                    if snippetTags.isEmpty {
+                        snippetTags = ["book-snippet"]
+                    }
+                }
             }
+            snippetSource = ""
+            snippetTags = []
         }
     }
 }
