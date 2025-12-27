@@ -10,17 +10,91 @@ struct CameraOverlay: View {
             let height = geo.size.height
             let maskY = (height - highlightHeight) / 2
 
-            Color.black.opacity(0.5)
-                .mask {
+            ZStack {
+                // Dark overlay with transparent highlight region
+                Color.black.opacity(0.5)
+                    .mask {
+                        Rectangle()
+                            .overlay(
+                                Rectangle()
+                                    .frame(height: highlightHeight)
+                                    .offset(y: maskY)
+                                    .blendMode(.destinationOut)
+                            )
+                            .compositingGroup()
+                    }
+
+                // Guide lines at top and bottom of highlight region
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: maskY)
+
+                    // Top guide line
                     Rectangle()
-                        .overlay(
-                            Rectangle()
-                                .frame(height: highlightHeight)
-                                .offset(y: maskY)
-                                .blendMode(.destinationOut)
-                        )
-                        .compositingGroup()
+                        .fill(Color.green)
+                        .frame(height: 2)
+
+                    Spacer()
+                        .frame(height: highlightHeight - 4)
+
+                    // Bottom guide line
+                    Rectangle()
+                        .fill(Color.green)
+                        .frame(height: 2)
+
+                    Spacer()
                 }
+
+                // Corner brackets for better visual guidance
+                VStack {
+                    Spacer()
+                        .frame(height: maskY)
+
+                    HStack {
+                        // Top-left corner
+                        VStack(alignment: .leading, spacing: 0) {
+                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
+                            Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                        }
+
+                        Spacer()
+
+                        // Top-right corner
+                        VStack(alignment: .trailing, spacing: 0) {
+                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
+                            HStack {
+                                Spacer()
+                                Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                            }
+                        }
+                    }
+
+                    Spacer()
+                        .frame(height: highlightHeight - 30)
+
+                    HStack {
+                        // Bottom-left corner
+                        VStack(alignment: .leading, spacing: 0) {
+                            Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
+                        }
+
+                        Spacer()
+
+                        // Bottom-right corner
+                        VStack(alignment: .trailing, spacing: 0) {
+                            HStack {
+                                Spacer()
+                                Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                            }
+                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
+                        }
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 8)
+            }
         }
         .allowsHitTesting(false)
     }
@@ -67,21 +141,27 @@ struct ContentView: View {
                 Spacer()
 
                 if !isCameraMinimized {
-                    CameraView(onFrameCaptured: { cgImage in
-                        let cameraHeight: CGFloat = 300
-                        if let cropped = cropToCameraPreview(from: cgImage, previewHeightInPoints: cameraHeight) {
-                            let recognizer = TextRecognizer()
-                            recognizer.recognizeText(from: cropped) { result in
-                                DispatchQueue.main.async {
-                                    recognizedText = result
-                                    withAnimation {
-                                        isCameraMinimized = true
+                    ZStack {
+                        CameraView { cgImage in
+                            let cameraHeight: CGFloat = 300
+                            let highlightHeight: CGFloat = 150 // Height of the focus region
+                            if let cropped = cropToHighlightRegion(from: cgImage, previewHeightInPoints: cameraHeight, highlightHeight: highlightHeight) {
+                                let recognizer = TextRecognizer()
+                                recognizer.recognizeText(from: cropped) { result in
+                                    DispatchQueue.main.async {
+                                        recognizedText = result
+                                        withAnimation {
+                                            isCameraMinimized = true
+                                        }
                                     }
                                 }
                             }
                         }
-                    }, cropRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.5))
-                    .frame(height: 300)
+                        .frame(height: 300)
+
+                        // Overlay with highlighted region
+                        CameraOverlay(highlightHeight: 150)
+                    }
                     .cornerRadius(10)
                     .padding(.horizontal)
                 }
@@ -317,5 +397,27 @@ func cropToCameraPreview(from image: CGImage, previewHeightInPoints: CGFloat) ->
     let previewHeightInPixels = Int(previewHeightInPoints * screenScale)
     let cropY = (imageHeight - previewHeightInPixels) / 2
     let cropRect = CGRect(x: 0, y: cropY, width: imageWidth, height: previewHeightInPixels)
+    return image.cropping(to: cropRect)
+}
+
+func cropToHighlightRegion(from image: CGImage, previewHeightInPoints: CGFloat, highlightHeight: CGFloat) -> CGImage? {
+    let imageWidth = image.width
+    let imageHeight = image.height
+    let screenScale = UIScreen.main.scale
+
+    // Convert preview and highlight heights to pixels
+    let previewHeightInPixels = Int(previewHeightInPoints * screenScale)
+    let highlightHeightInPixels = Int(highlightHeight * screenScale)
+
+    // First, calculate where the camera preview sits in the full image
+    let previewCropY = (imageHeight - previewHeightInPixels) / 2
+
+    // Then, calculate where the highlight region sits within that preview
+    let highlightOffsetInPreview = (previewHeightInPixels - highlightHeightInPixels) / 2
+
+    // Final crop Y position in the full image
+    let finalCropY = previewCropY + highlightOffsetInPreview
+
+    let cropRect = CGRect(x: 0, y: finalCropY, width: imageWidth, height: highlightHeightInPixels)
     return image.cropping(to: cropRect)
 }
