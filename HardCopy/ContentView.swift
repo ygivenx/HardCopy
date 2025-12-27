@@ -67,7 +67,7 @@ struct ContentView: View {
                 Spacer()
 
                 if !isCameraMinimized {
-                    CameraView { cgImage in
+                    CameraView(onFrameCaptured: { cgImage in
                         let cameraHeight: CGFloat = 300
                         if let cropped = cropToCameraPreview(from: cgImage, previewHeightInPoints: cameraHeight) {
                             let recognizer = TextRecognizer()
@@ -80,7 +80,7 @@ struct ContentView: View {
                                 }
                             }
                         }
-                    }
+                    }, cropRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.5))
                     .frame(height: 300)
                     .cornerRadius(10)
                     .padding(.horizontal)
@@ -275,15 +275,17 @@ struct ContentView: View {
                 selectedText = ""
                 
                 // Load last-used source if it's recent
-                if let recent = loadRecentSource() {
+                print("Finding recent sources...")
+                if let recent = SourceHistoryManager.load() {
                     snippetSource = recent
                     if snippetTags.isEmpty {
                         snippetTags = ["book-snippet"]
                     }
+                } else {
+                    snippetSource = ""
+                    snippetTags = []
                 }
             }
-            snippetSource = ""
-            snippetTags = []
         }
     }
 }
