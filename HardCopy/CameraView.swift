@@ -2,15 +2,19 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: UIViewControllerRepresentable {
-    var onFrameCaptured: (CGImage, AVCaptureVideoPreviewLayer) -> Void
+    var onFrameCaptured: (CGImage) -> Void
+    var cropRect: CGRect // 👈 add this (in normalized coordinates)
 
     func makeUIViewController(context: Context) -> CameraViewController {
         let controller = CameraViewController()
         controller.onFrameCaptured = onFrameCaptured
+        controller.normalizedCropRect = cropRect
         return controller
     }
 
-    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
+        uiViewController.normalizedCropRect = cropRect
+    }
 }
 
 
@@ -22,6 +26,8 @@ class CameraViewController: UIViewController {
     var onFrameCaptured: ((CGImage, AVCaptureVideoPreviewLayer) -> Void)?
     private let ciContext = CIContext()
     private var captureNextFrame = false
+    var normalizedCropRect: CGRect = CGRect(x: 0, y: 0.25, width: 1, height: 0.5) // Default to center band
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,6 +96,20 @@ class CameraViewController: UIViewController {
         captureSession.commitConfiguration()
 
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        if let device = AVCaptureDevice.default(for: .video) {
+            try? device.lockForConfiguration()
+
+            if device.isFocusModeSupported(.continuousAutoFocus) {
+                device.focusMode = .continuousAutoFocus
+            }
+
+            if device.isExposureModeSupported(.continuousAutoExposure) {
+                device.exposureMode = .continuousAutoExposure
+            }
+
+            device.unlockForConfiguration()
+        }
+
         previewLayer.videoGravity = .resizeAspectFill
         previewLayer.frame = view.bounds
         view.layer.addSublayer(previewLayer)

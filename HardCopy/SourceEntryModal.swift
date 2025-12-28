@@ -5,6 +5,7 @@
 //  Created by Rohan Singh on 3/29/25.
 //
 import SwiftUI
+import Foundation
 
 struct SourceEntryModal: View {
     @Binding var source: String
@@ -49,7 +50,7 @@ struct SourceEntryModal: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         source = tempSource
-                        saveLastSource(tempSource)
+                        SourceHistoryManager.save(tempSource)
                         dismiss()
                         onSave()
                     }

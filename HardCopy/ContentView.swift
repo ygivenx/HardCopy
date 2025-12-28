@@ -455,15 +455,15 @@ struct ContentView: View {
                 isCameraMinimized = false
                 recognizedText = ""
                 selectedText = ""
-
-                // Load last-used source if it's recent (within 1 hour)
-                if let recent = loadRecentSource() {
+                
+                // Load last-used source if it's recent
+                print("Finding recent sources...")
+                if let recent = SourceHistoryManager.load() {
                     snippetSource = recent
                     if snippetTags.isEmpty {
                         snippetTags = ["book-snippet"]
                     }
                 } else {
-                    // Only clear if no recent source found
                     snippetSource = ""
                     snippetTags = []
                 }
