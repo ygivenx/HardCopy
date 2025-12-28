@@ -121,7 +121,7 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 // App Header
                 HStack {
-                    Text("HardCopy")
+                    Text("ClikCopy")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(Color(.label))

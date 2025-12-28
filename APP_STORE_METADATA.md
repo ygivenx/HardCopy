@@ -1,7 +1,7 @@
-# HardCopy - App Store Metadata
+# ClikCopy - App Store Metadata
 
 ## App Name
-**HardCopy**
+**ClikCopy**
 
 ## Subtitle (30 characters max)
 **Scan & Save Book Highlights**
@@ -11,7 +11,7 @@ Capture your favorite book passages with your camera. Perfect for readers who wa
 
 ## Description (4000 characters max)
 
-Turn your iPhone into a smart book scanner! HardCopy helps you capture and organize your favorite passages from physical books, newspapers, and printed materials using your camera.
+Turn your iPhone into a smart book scanner! ClikCopy helps you capture and organize your favorite passages from physical books, newspapers, and printed materials using your camera.
 
 **✨ KEY FEATURES**
 
@@ -63,9 +63,9 @@ Turn your iPhone into a smart book scanner! HardCopy helps you capture and organ
 
 All your highlights are saved locally and organized by source, making it easy to review your reading notes anytime.
 
-Whether you're a casual reader or a serious scholar, HardCopy makes it effortless to preserve the wisdom you discover in books.
+Whether you're a casual reader or a serious scholar, ClikCopy makes it effortless to preserve the wisdom you discover in books.
 
-**Download HardCopy today and never lose track of a great quote again!**
+**Download ClikCopy today and never lose track of a great quote again!**
 
 ---
 
@@ -73,10 +73,10 @@ Whether you're a casual reader or a serious scholar, HardCopy makes it effortles
 book scanner,OCR,text recognition,highlights,quotes,reading,study,scanner,books,notes
 
 ## Support URL
-https://github.com/ygivenx/HardCopy
+https://github.com/ygivenx/ClikCopy
 
 ## Marketing URL (optional)
-https://github.com/ygivenx/HardCopy
+https://github.com/ygivenx/ClikCopy
 
 ## Privacy Policy URL
 [You need to host PRIVACY_POLICY.md somewhere - options below]
@@ -97,7 +97,7 @@ https://github.com/ygivenx/HardCopy
 
 **Version 1.0 - Initial Release**
 
-Welcome to HardCopy!
+Welcome to ClikCopy!
 
 This is our first release, featuring:
 
@@ -140,7 +140,7 @@ Not required (no account system)
 
 **Notes for Reviewer:**
 ```
-Thank you for reviewing HardCopy!
+Thank you for reviewing ClikCopy!
 
 TESTING INSTRUCTIONS:
 1. Launch the app
@@ -171,10 +171,10 @@ The app is fully functional and ready for review. Please test with any physical 
 You need to host the PRIVACY_POLICY.md file somewhere public. Options:
 
 1. **GitHub Pages** (Free, Recommended)
-   - Create a new repository or use existing HardCopy repo
+   - Create a new repository or use existing ClikCopy repo
    - Enable GitHub Pages in settings
    - Upload PRIVACY_POLICY.md
-   - URL: `https://ygivenx.github.io/HardCopy/PRIVACY_POLICY.html`
+   - URL: `https://ygivenx.github.io/ClikCopy/PRIVACY_POLICY.html`
 
 2. **Gist** (Free, Quick)
    - Create a GitHub Gist with the privacy policy

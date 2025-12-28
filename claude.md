@@ -1,10 +1,10 @@
-# HardCopy iOS App
+# ClikCopy iOS App
 
 An iOS app for scanning and copying text from physical books, newspapers, and printed materials using OCR (Optical Character Recognition).
 
 ## Project Overview
 
-**HardCopy** allows users to:
+**ClikCopy** allows users to:
 - Scan text from physical materials using the device camera
 - Focus on specific text regions with a visual highlight overlay
 - Select and edit recognized text
@@ -25,8 +25,8 @@ An iOS app for scanning and copying text from physical books, newspapers, and pr
 ### Key Files
 
 ```
-HardCopy/
-├── HardCopyApp.swift           # App entry point
+ClikCopy/
+├── ClikCopyApp.swift           # App entry point
 ├── ContentView.swift           # Main UI with camera overlay and scan logic
 ├── CameraView.swift            # AVFoundation camera capture
 ├── TextRecognizer.swift        # Vision OCR wrapper
@@ -245,7 +245,7 @@ git push -u origin feature/my-feature
 
 This is a personal project by Rohan Singh (@ygivenx).
 
-Repository: https://github.com/ygivenx/HardCopy
+Repository: https://github.com/ygivenx/ClikCopy
 
 ## License
 

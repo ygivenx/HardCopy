@@ -1,16 +1,16 @@
-# Privacy Policy for HardCopy
+# Privacy Policy for ClikCopy
 
 **Last Updated: December 27, 2025**
 
 ## Overview
 
-HardCopy ("we," "our," or "the app") is committed to protecting your privacy. This Privacy Policy explains how we handle your data when you use our iOS application.
+ClikCopy ("we," "our," or "the app") is committed to protecting your privacy. This Privacy Policy explains how we handle your data when you use our iOS application.
 
 ## Data Collection
 
 ### What We Collect
 
-HardCopy is designed with privacy in mind. We collect and process:
+ClikCopy is designed with privacy in mind. We collect and process:
 
 1. **Camera Data**: When you use the scan feature, the app temporarily processes images from your device's camera to perform optical character recognition (OCR). These images are **never stored, uploaded, or transmitted** to any server.
 
@@ -52,7 +52,7 @@ You have complete control over your data:
 
 ## Children's Privacy
 
-HardCopy does not knowingly collect any information from children under 13. The app is suitable for all ages.
+ClikCopy does not knowingly collect any information from children under 13. The app is suitable for all ages.
 
 ## Camera Permissions
 
@@ -64,7 +64,7 @@ We may update this Privacy Policy from time to time. The "Last Updated" date at 
 
 ## Third-Party Services
 
-HardCopy does not integrate with any third-party services, analytics tools, or advertising networks.
+ClikCopy does not integrate with any third-party services, analytics tools, or advertising networks.
 
 ## Data Retention
 
@@ -75,7 +75,7 @@ All data is retained locally on your device until you choose to delete it or uni
 If you have questions about this Privacy Policy, please contact:
 
 **Email**: [Your Email Here]
-**GitHub**: https://github.com/ygivenx/HardCopy
+**GitHub**: https://github.com/ygivenx/ClikCopy
 
 ## Legal Compliance
 
@@ -86,4 +86,4 @@ This app complies with:
 
 ---
 
-**Summary**: HardCopy respects your privacy. Your scanned content never leaves your device. We don't collect, store, or share any personal information. All processing happens locally on your iPhone or iPad.
+**Summary**: ClikCopy respects your privacy. Your scanned content never leaves your device. We don't collect, store, or share any personal information. All processing happens locally on your iPhone or iPad.

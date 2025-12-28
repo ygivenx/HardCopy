@@ -1,9 +1,9 @@
-# HardCopy App Store Submission Checklist
+# ClikCopy App Store Submission Checklist
 
 ## ✅ Completed Steps
 
 - [x] Privacy Manifest created (PrivacyInfo.xcprivacy)
-- [x] Bundle ID configured (com.ygivenx.HardCopy.HardCopy)
+- [x] Bundle ID configured (com.ygivenx.ClikCopy)
 - [x] Version 1.0, Build 1 set
 - [x] Camera permission description added
 - [x] App Icon all sizes present (including 1024x1024)
@@ -18,7 +18,7 @@
 
 **Option A: GitHub Pages (Recommended)**
 ```bash
-# In your HardCopy repo or create new one
+# In your ClikCopy repo or create new one
 git checkout -b gh-pages
 cp PRIVACY_POLICY.md index.md
 git add index.md
@@ -26,13 +26,13 @@ git commit -m "Add privacy policy"
 git push origin gh-pages
 
 # Enable GitHub Pages in repo settings
-# Privacy Policy URL: https://ygivenx.github.io/HardCopy/
+# Privacy Policy URL: https://ygivenx.github.io/ClikCopy/
 ```
 
 **Option B: GitHub Gist (Fastest)**
 1. Go to https://gist.github.com
 2. Paste PRIVACY_POLICY.md content
-3. Name file: `HardCopy-Privacy-Policy.md`
+3. Name file: `ClikCopy-Privacy-Policy.md`
 4. Create public gist
 5. Copy the URL
 
@@ -95,10 +95,10 @@ xcodebuild -project HardCopy.xcodeproj \
 1. **Create New App**
    - Click "+" → "New App"
    - Platform: iOS
-   - Name: HardCopy
+   - Name: ClikCopy
    - Primary Language: English
-   - Bundle ID: com.ygivenx.HardCopy.HardCopy
-   - SKU: hardcopy-001 (or any unique identifier)
+   - Bundle ID: com.ygivenx.ClikCopy
+   - SKU: clikcopy-001 (or any unique identifier)
    - User Access: Full Access
 
 2. **Fill App Information**
@@ -163,7 +163,7 @@ open -a Simulator
    - Fill all fields from APP_STORE_METADATA.md
    - Description (copy from metadata file)
    - Keywords
-   - Support URL: https://github.com/ygivenx/HardCopy
+   - Support URL: https://github.com/ygivenx/ClikCopy
 
 2. **Pricing and Availability**
    - Price: Free (or set price)
@@ -258,8 +258,8 @@ open -a Simulator
 
 ## Quick Reference
 
-**App Name:** HardCopy
-**Bundle ID:** com.ygivenx.HardCopy.HardCopy
+**App Name:** ClikCopy
+**Bundle ID:** com.ygivenx.ClikCopy
 **Version:** 1.0
 **Build:** 1
 **Category:** Productivity
