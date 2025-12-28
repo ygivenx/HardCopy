@@ -2,19 +2,15 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: UIViewControllerRepresentable {
-    var onFrameCaptured: (CGImage) -> Void
-    var cropRect: CGRect // 👈 add this (in normalized coordinates)
+    var onFrameCaptured: (CGImage, AVCaptureVideoPreviewLayer) -> Void
 
     func makeUIViewController(context: Context) -> CameraViewController {
         let controller = CameraViewController()
         controller.onFrameCaptured = onFrameCaptured
-        controller.normalizedCropRect = cropRect
         return controller
     }
 
-    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {
-        uiViewController.normalizedCropRect = cropRect
-    }
+    func updateUIViewController(_ uiViewController: CameraViewController, context: Context) {}
 }
 
 
@@ -26,7 +22,6 @@ class CameraViewController: UIViewController {
     var onFrameCaptured: ((CGImage, AVCaptureVideoPreviewLayer) -> Void)?
     private let ciContext = CIContext()
     private var captureNextFrame = false
-    var normalizedCropRect: CGRect = CGRect(x: 0, y: 0.25, width: 1, height: 0.5) // Default to center band
 
 
     override func viewDidLoad() {
