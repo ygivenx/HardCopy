@@ -23,7 +23,7 @@ class CameraViewController: UIViewController {
     private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private let videoOutput = AVCaptureVideoDataOutput()
-    var onFrameCaptured: ((CGImage, AVCaptureVideoPreviewLayer) -> Void)?
+    var onFrameCaptured: ((CGImage) -> Void)?
     private let ciContext = CIContext()
     private var captureNextFrame = false
     var normalizedCropRect: CGRect = CGRect(x: 0, y: 0.25, width: 1, height: 0.5) // Default to center band
@@ -59,32 +59,6 @@ class CameraViewController: UIViewController {
             return
         }
 
-        // Configure autofocus
-        do {
-            try camera.lockForConfiguration()
-
-            // Enable continuous autofocus if available
-            if camera.isFocusModeSupported(.continuousAutoFocus) {
-                camera.focusMode = .continuousAutoFocus
-            } else if camera.isFocusModeSupported(.autoFocus) {
-                camera.focusMode = .autoFocus
-            }
-
-            // Enable auto exposure
-            if camera.isExposureModeSupported(.continuousAutoExposure) {
-                camera.exposureMode = .continuousAutoExposure
-            }
-
-            // Enable auto white balance
-            if camera.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {
-                camera.whiteBalanceMode = .continuousAutoWhiteBalance
-            }
-
-            camera.unlockForConfiguration()
-        } catch {
-            print("⚠️ Failed to configure camera settings: \(error)")
-        }
-
         captureSession.beginConfiguration()
         captureSession.addInput(input)
 
@@ -114,9 +88,7 @@ class CameraViewController: UIViewController {
         previewLayer.frame = view.bounds
         view.layer.addSublayer(previewLayer)
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession.startRunning()
-        }
+        captureSession.startRunning()
     }
 
     private func showPermissionDeniedMessage() {
@@ -146,11 +118,8 @@ extension CameraViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        if let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent),
-           let preview = previewLayer {
-            // Call the callback directly without dispatching to main thread
-            // The callback will handle its own threading
-            self.onFrameCaptured?(cgImage, preview)
+        if let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) {
+            onFrameCaptured?(cgImage)
         }
     }
 }

@@ -22,7 +22,3 @@ enum SourceHistoryManager {
         return age <= seconds ? source : nil
     }
 }
-
-func loadSourceHistory() -> [String] {
-    return UserDefaults.standard.stringArray(forKey: "sourceHistory") ?? []
-}
