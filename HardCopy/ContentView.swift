@@ -1,99 +1,99 @@
 // ContentView.swift
 import SwiftUI
+import AVFoundation
 
 struct CameraOverlay: View {
     var highlightHeight: CGFloat
 
     var body: some View {
         GeometryReader { geo in
-            let width = geo.size.width
             let height = geo.size.height
-            let maskY = (height - highlightHeight) / 2
+            let topPadding = (height - highlightHeight) / 2
 
             ZStack {
-                // Dark overlay with transparent highlight region
-                Color.black.opacity(0.5)
-                    .mask {
-                        Rectangle()
-                            .overlay(
-                                Rectangle()
-                                    .frame(height: highlightHeight)
-                                    .offset(y: maskY)
-                                    .blendMode(.destinationOut)
-                            )
-                            .compositingGroup()
-                    }
+                // Subtle dark overlay with rounded corners
+                VStack(spacing: 0) {
+                    Color.black.opacity(0.15)
+                        .frame(height: topPadding)
 
-                // Guide lines at top and bottom of highlight region
+                    Spacer()
+                }
+
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: maskY)
 
-                    // Top guide line
-                    Rectangle()
-                        .fill(Color.green)
-                        .frame(height: 2)
-
-                    Spacer()
-                        .frame(height: highlightHeight - 4)
-
-                    // Bottom guide line
-                    Rectangle()
-                        .fill(Color.green)
-                        .frame(height: 2)
-
-                    Spacer()
+                    Color.black.opacity(0.15)
+                        .frame(height: topPadding)
                 }
 
-                // Corner brackets for better visual guidance
-                VStack {
+                // Modern corner brackets - primary blue color
+                VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: maskY)
+                        .frame(height: topPadding)
 
-                    HStack {
-                        // Top-left corner
-                        VStack(alignment: .leading, spacing: 0) {
-                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
-                            Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                    // Corner brackets
+                    VStack(spacing: 0) {
+                        HStack {
+                            // Top-left corner
+                            VStack(alignment: .leading, spacing: 0) {
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 40, height: 3)
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 3, height: 40)
+                            }
+
+                            Spacer()
+
+                            // Top-right corner
+                            VStack(alignment: .trailing, spacing: 0) {
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 40, height: 3)
+                                HStack {
+                                    Spacer()
+                                    Rectangle()
+                                        .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                        .frame(width: 3, height: 40)
+                                }
+                            }
                         }
 
                         Spacer()
+                            .frame(height: highlightHeight - 46)
 
-                        // Top-right corner
-                        VStack(alignment: .trailing, spacing: 0) {
-                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
-                            HStack {
-                                Spacer()
-                                Rectangle().fill(Color.green).frame(width: 3, height: 30)
+                        HStack {
+                            // Bottom-left corner
+                            VStack(alignment: .leading, spacing: 0) {
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 3, height: 40)
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 40, height: 3)
+                            }
+
+                            Spacer()
+
+                            // Bottom-right corner
+                            VStack(alignment: .trailing, spacing: 0) {
+                                HStack {
+                                    Spacer()
+                                    Rectangle()
+                                        .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                        .frame(width: 3, height: 40)
+                                }
+                                Rectangle()
+                                    .fill(Color(red: 37/255, green: 99/255, blue: 235/255))
+                                    .frame(width: 40, height: 3)
                             }
                         }
                     }
-
-                    Spacer()
-                        .frame(height: highlightHeight - 30)
-
-                    HStack {
-                        // Bottom-left corner
-                        VStack(alignment: .leading, spacing: 0) {
-                            Rectangle().fill(Color.green).frame(width: 3, height: 30)
-                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
-                        }
-
-                        Spacer()
-
-                        // Bottom-right corner
-                        VStack(alignment: .trailing, spacing: 0) {
-                            HStack {
-                                Spacer()
-                                Rectangle().fill(Color.green).frame(width: 3, height: 30)
-                            }
-                            Rectangle().fill(Color.green).frame(width: 30, height: 3)
-                        }
-                    }
+                    .padding(.horizontal, 16)
 
                     Spacer()
                 }
-                .padding(.horizontal, 8)
             }
         }
         .allowsHitTesting(false)
@@ -103,6 +103,7 @@ struct CameraOverlay: View {
 struct ContentView: View {
     @State private var recognizedText: String = ""
     @State private var showCopiedToast = false
+    @State private var toastMessage: String = "Saved ✅"
     @State private var isCameraMinimized = false
     @State private var selectedText: String = ""
     @State private var showingSnippetViewer = false
@@ -142,16 +143,41 @@ struct ContentView: View {
 
                 if !isCameraMinimized {
                     ZStack {
-                        CameraView { cgImage in
-                            let cameraHeight: CGFloat = 300
-                            let highlightHeight: CGFloat = 150 // Height of the focus region
-                            if let cropped = cropToHighlightRegion(from: cgImage, previewHeightInPoints: cameraHeight, highlightHeight: highlightHeight) {
-                                let recognizer = TextRecognizer()
-                                recognizer.recognizeText(from: cropped) { result in
-                                    DispatchQueue.main.async {
-                                        recognizedText = result
-                                        withAnimation {
-                                            isCameraMinimized = true
+                        CameraView { cgImage, previewLayer in
+                            // This callback is called on videoQueue (background thread)
+                            // We need to access UIKit/AVFoundation on main thread
+                            DispatchQueue.main.async {
+                                let cameraHeight: CGFloat = 300
+                                let highlightHeight: CGFloat = 150
+                                let screenWidth = UIScreen.main.bounds.width
+                                let cameraWidth = screenWidth - 32
+
+                                // Calculate overlay rectangle in preview layer coordinates
+                                let topPadding = (cameraHeight - highlightHeight) / 2
+                                let overlayRect = CGRect(
+                                    x: 16,  // padding from CameraOverlay
+                                    y: topPadding,
+                                    width: cameraWidth - 32,  // subtract both sides padding
+                                    height: highlightHeight
+                                )
+
+                                // Do coordinate conversion on main thread (required by AVFoundation)
+                                let topLeft = previewLayer.captureDevicePointConverted(fromLayerPoint: overlayRect.origin)
+                                let bottomRight = previewLayer.captureDevicePointConverted(
+                                    fromLayerPoint: CGPoint(x: overlayRect.maxX, y: overlayRect.maxY)
+                                )
+
+                                // Move heavy processing to background thread
+                                DispatchQueue.global(qos: .userInitiated).async {
+                                    if let cropped = cropImageToNormalizedRect(from: cgImage, topLeft: topLeft, bottomRight: bottomRight) {
+                                        let recognizer = TextRecognizer()
+                                        recognizer.recognizeText(from: cropped) { result in
+                                            DispatchQueue.main.async {
+                                                recognizedText = result
+                                                withAnimation {
+                                                    isCameraMinimized = true
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -162,7 +188,8 @@ struct ContentView: View {
                         // Overlay with highlighted region
                         CameraOverlay(highlightHeight: 150)
                     }
-                    .cornerRadius(10)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 2)
                     .padding(.horizontal)
                 }
 
@@ -171,9 +198,9 @@ struct ContentView: View {
                         .frame(minHeight: 150, maxHeight: .infinity)
                         .foregroundColor(Color(.label))
                         .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(10)
-                        .shadow(radius: 2)
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 2)
                         .padding()
                     
                     // SHOW SOURCE
@@ -181,7 +208,7 @@ struct ContentView: View {
                         HStack {
                             HStack(spacing: 8) {
                                 Image(systemName: "book.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(Color(red: 37/255, green: 99/255, blue: 235/255))
 
                                 Text(snippetSource)
                                     .font(.subheadline)
@@ -199,7 +226,7 @@ struct ContentView: View {
                                 }) {
                                     Image(systemName: "pencil")
                                         .imageScale(.medium)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(Color(red: 100/255, green: 116/255, blue: 139/255))
                                 }
 
                                 Button(action: {
@@ -210,17 +237,14 @@ struct ContentView: View {
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                         .imageScale(.medium)
-                                        .foregroundColor(.red)
+                                        .foregroundColor(Color(red: 239/255, green: 68/255, blue: 68/255))
                                 }
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                        )
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 2)
                         .padding(.horizontal)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     } else {
@@ -228,10 +252,13 @@ struct ContentView: View {
                             showSourceEditor = true
                         }) {
                             Label("Add Source", systemImage: "plus")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(Color(red: 37/255, green: 99/255, blue: 235/255))
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(10)
+                                .background(Color.white)
+                                .cornerRadius(16)
+                                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 2)
                         }
                         .padding(.horizontal)
                         .sheet(isPresented: $showSourceEditor) {
@@ -243,13 +270,14 @@ struct ContentView: View {
                         }
                     }
 
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text("Tags:")
-                            .font(.caption)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Color(red: 100/255, green: 116/255, blue: 139/255))
                             .padding(.horizontal)
 
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 ForEach(predefinedTags, id: \.self) { tag in
                                     let isSelected = snippetTags.contains(tag)
                                     Button(action: {
@@ -260,49 +288,115 @@ struct ContentView: View {
                                         }
                                     }) {
                                         Text(tag)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(isSelected ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
-                                            .cornerRadius(10)
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundColor(isSelected ? Color.white : Color(red: 100/255, green: 116/255, blue: 139/255))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                isSelected ?
+                                                LinearGradient(
+                                                    colors: [Color(red: 37/255, green: 99/255, blue: 235/255), Color(red: 29/255, green: 78/255, blue: 216/255)],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ) :
+                                                LinearGradient(
+                                                    colors: [Color.white, Color.white],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .cornerRadius(12)
+                                            .shadow(color: isSelected ? Color(red: 37/255, green: 99/255, blue: 235/255).opacity(0.25) : Color.black.opacity(0.08), radius: isSelected ? 8 : 4, x: 0, y: 2)
                                     }
                                 }
                             }
                             .padding(.horizontal)
                         }
                     }
+                    .padding(.vertical, 8)
 
 
-                    Button(action: {
-                        let cleanedSelected = cleanRecognizedText(selectedText)
-                        let cleanedFull = cleanRecognizedText(recognizedText)
-                        let textToCopy = cleanedSelected.isEmpty ? cleanedFull : cleanedSelected
+                    HStack(spacing: 12) {
+                        // Save Button
+                        Button(action: {
+                            let cleanedSelected = cleanRecognizedText(selectedText)
+                            let cleanedFull = cleanRecognizedText(recognizedText)
+                            let textToSave = cleanedSelected.isEmpty ? cleanedFull : cleanedSelected
 
-                        UIPasteboard.general.string = textToCopy
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            let newSnippet = Snippet(text: textToSave, source: snippetSource, tags: snippetTags)
+                            snippetsManager.addSnippet(newSnippet)
 
-                        let newSnippet = Snippet(text: textToCopy, source: snippetSource, tags: snippetTags)
-                        snippetsManager.addSnippet(newSnippet)
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-                        withAnimation {
-                            showCopiedToast = true
-                        }
-
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            toastMessage = "Saved ✅"
                             withAnimation {
-                                showCopiedToast = false
-                                recognizedText = ""
-                                selectedText = ""
-                                isCameraMinimized = false
+                                showCopiedToast = true
                             }
-                        }
-                    }) {
-                        Text("Copy to Clipboard")
-                            .font(.subheadline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.green)
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showCopiedToast = false
+                                    recognizedText = ""
+                                    selectedText = ""
+                                    isCameraMinimized = false
+                                }
+                            }
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.down.fill")
+                                    .imageScale(.medium)
+                                Text("Save")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
                             .foregroundColor(.white)
-                            .cornerRadius(10)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .cornerRadius(16)
+                            .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.35), radius: 7, x: 0, y: 4)
+                        }
+
+                        // Copy Button
+                        Button(action: {
+                            let cleanedSelected = cleanRecognizedText(selectedText)
+                            let cleanedFull = cleanRecognizedText(recognizedText)
+                            let textToCopy = cleanedSelected.isEmpty ? cleanedFull : cleanedSelected
+
+                            UIPasteboard.general.string = textToCopy
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+                            toastMessage = "Copied ✅"
+                            withAnimation {
+                                showCopiedToast = true
+                            }
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                withAnimation {
+                                    showCopiedToast = false
+                                }
+                            }
+                        }) {
+                            Image(systemName: "doc.on.doc.fill")
+                                .imageScale(.large)
+                                .foregroundColor(.white)
+                                .frame(width: 60)
+                                .padding(.vertical, 16)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(red: 37/255, green: 99/255, blue: 235/255), Color(red: 29/255, green: 78/255, blue: 216/255)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .cornerRadius(16)
+                                .shadow(color: Color(red: 37/255, green: 99/255, blue: 235/255).opacity(0.35), radius: 7, x: 0, y: 4)
+                        }
                     }
                     .padding(.horizontal)
                 }
@@ -313,12 +407,19 @@ struct ContentView: View {
                     NotificationCenter.default.post(name: .triggerScan, object: nil)
                 }) {
                     Text("Scan")
-                        .font(.headline)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
-                        .cornerRadius(10)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(red: 37/255, green: 99/255, blue: 235/255), Color(red: 29/255, green: 78/255, blue: 216/255)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: Color(red: 37/255, green: 99/255, blue: 235/255).opacity(0.35), radius: 7, x: 0, y: 4)
                 }
                 .padding(.horizontal)
 
@@ -329,7 +430,7 @@ struct ContentView: View {
                     .foregroundColor(Color(.secondaryLabel))
                     .padding(.bottom, 50)
             }
-            .background(Color(.systemBackground))
+            .background(Color(red: 248/255, green: 250/255, blue: 252/255))
             .sheet(isPresented: $showingSnippetViewer) {
                 SnippetListView(manager: snippetsManager)
             }
@@ -337,12 +438,13 @@ struct ContentView: View {
             if showCopiedToast {
                 VStack {
                     Spacer()
-                    Text("Copied ✅")
-                        .font(.caption)
-                        .padding(10)
-                        .background(Color.black.opacity(0.8))
+                    Text(toastMessage)
+                        .font(.system(size: 15, weight: .medium))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.black.opacity(0.85))
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .cornerRadius(12)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .padding(.bottom, 30)
                 }
@@ -353,17 +455,19 @@ struct ContentView: View {
                 isCameraMinimized = false
                 recognizedText = ""
                 selectedText = ""
-                
-                // Load last-used source if it's recent
+
+                // Load last-used source if it's recent (within 1 hour)
                 if let recent = loadRecentSource() {
                     snippetSource = recent
                     if snippetTags.isEmpty {
                         snippetTags = ["book-snippet"]
                     }
+                } else {
+                    // Only clear if no recent source found
+                    snippetSource = ""
+                    snippetTags = []
                 }
             }
-            snippetSource = ""
-            snippetTags = []
         }
     }
 }
@@ -398,24 +502,27 @@ func cropToCameraPreview(from image: CGImage, previewHeightInPoints: CGFloat) ->
     return image.cropping(to: cropRect)
 }
 
-func cropToHighlightRegion(from image: CGImage, previewHeightInPoints: CGFloat, highlightHeight: CGFloat) -> CGImage? {
-    let imageWidth = image.width
-    let imageHeight = image.height
-    let screenScale = UIScreen.main.scale
+func cropToHighlightRegion(from image: CGImage, previewLayer: AVCaptureVideoPreviewLayer, overlayRect: CGRect) -> CGImage? {
+    // Convert overlay corners from preview layer coordinates to device coordinates (0.0-1.0)
+    let topLeft = previewLayer.captureDevicePointConverted(fromLayerPoint: overlayRect.origin)
+    let bottomRight = previewLayer.captureDevicePointConverted(
+        fromLayerPoint: CGPoint(x: overlayRect.maxX, y: overlayRect.maxY)
+    )
 
-    // Convert preview and highlight heights to pixels
-    let previewHeightInPixels = Int(previewHeightInPoints * screenScale)
-    let highlightHeightInPixels = Int(highlightHeight * screenScale)
+    return cropImageToNormalizedRect(from: image, topLeft: topLeft, bottomRight: bottomRight)
+}
 
-    // First, calculate where the camera preview sits in the full image
-    let previewCropY = (imageHeight - previewHeightInPixels) / 2
+func cropImageToNormalizedRect(from image: CGImage, topLeft: CGPoint, bottomRight: CGPoint) -> CGImage? {
+    // Calculate crop rectangle in image pixel coordinates from normalized device coordinates
+    let imageWidth = CGFloat(image.width)
+    let imageHeight = CGFloat(image.height)
 
-    // Then, calculate where the highlight region sits within that preview
-    let highlightOffsetInPreview = (previewHeightInPixels - highlightHeightInPixels) / 2
+    let cropRect = CGRect(
+        x: topLeft.x * imageWidth,
+        y: topLeft.y * imageHeight,
+        width: (bottomRight.x - topLeft.x) * imageWidth,
+        height: (bottomRight.y - topLeft.y) * imageHeight
+    )
 
-    // Final crop Y position in the full image
-    let finalCropY = previewCropY + highlightOffsetInPreview
-
-    let cropRect = CGRect(x: 0, y: finalCropY, width: imageWidth, height: highlightHeightInPixels)
     return image.cropping(to: cropRect)
 }

@@ -29,33 +29,9 @@
 		9BEDA7CA2D947AB7000343FD /* HardCopyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HardCopyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B4514C4C2D989B7A006D3D52 /* Exceptions for "HardCopy" folder in "HardCopy" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SourceHistoryManager.swift,
-			);
-			target = 9BEDA7AF2D947AB6000343FD /* HardCopy */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		B4514C4D2D989B7A006D3D52 /* Exceptions for "HardCopy" folder in "Copy Bundle Resources" phase from "HardCopy" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 9BEDA7AE2D947AB6000343FD /* Resources */;
-			membershipExceptions = (
-				SourceHistoryManager.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9BEDA7B22D947AB6000343FD /* HardCopy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B4514C4C2D989B7A006D3D52 /* Exceptions for "HardCopy" folder in "HardCopy" target */,
-				B4514C4D2D989B7A006D3D52 /* Exceptions for "HardCopy" folder in "Copy Bundle Resources" phase from "HardCopy" target */,
-			);
 			path = HardCopy;
 			sourceTree = "<group>";
 		};
